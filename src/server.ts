@@ -2,6 +2,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { CatalogStore } from "./catalog/store.js";
 import { QueryEngine } from "./query/engine.js";
+import { QueryRouter } from "./query/router.js";
 import { SemanticIndex } from "./semantic/index.js";
 import { handleConnectSource, handleListTables } from "./tools/connect.js";
 import { handleQuery } from "./tools/query.js";
@@ -18,6 +19,7 @@ export function createServer(): McpServer {
   const config = getConfig();
   const catalog = new CatalogStore();
   const engine = new QueryEngine();
+  const router = new QueryRouter(engine);
   const semanticIndex = new SemanticIndex();
 
   const server = new McpServer({
@@ -41,7 +43,7 @@ export function createServer(): McpServer {
     },
     async (params) => {
       try {
-        const result = await handleConnectSource(params, catalog, engine);
+        const result = await handleConnectSource(params, catalog, engine, router);
         return {
           content: [{
             type: "text" as const,
@@ -123,7 +125,7 @@ export function createServer(): McpServer {
     },
     async (params) => {
       try {
-        const result = await handleQuery({ sql: params.sql, maxRows: params.max_rows, format: params.format }, engine);
+        const result = await handleQuery({ sql: params.sql, maxRows: params.max_rows, format: params.format }, engine, router);
         return { content: [{ type: "text" as const, text: result }] };
       } catch (error) {
         return {

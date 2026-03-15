@@ -7,7 +7,7 @@ tags:
   - 财务
   - 订单
 confirmed: false
-updatedAt: '2026-03-15T05:24:42.929Z'
+updatedAt: '2026-03-15T05:34:02.779Z'
 columns:
   - name: Order ID
     semantic: 订单唯一标识
