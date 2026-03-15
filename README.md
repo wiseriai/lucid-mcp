@@ -10,7 +10,7 @@ Connect your Excel files, CSVs, and MySQL databases. Understand business semanti
   "mcpServers": {
     "lucid": {
       "command": "npx",
-      "args": ["lucid-mcp"]
+      "args": ["@wiseria/lucid-mcp"]
     }
   }
 }
@@ -74,7 +74,7 @@ Edit `~/Library/Application Support/Claude/claude_desktop_config.json`:
   "mcpServers": {
     "lucid": {
       "command": "npx",
-      "args": ["lucid-mcp"]
+      "args": ["@wiseria/lucid-mcp"]
     }
   }
 }
