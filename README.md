@@ -180,7 +180,7 @@ catalog:
 ## Development
 
 ```bash
-git clone https://github.com/nicekate/lucid-mcp
+git clone https://github.com/wiseriai/lucid-mcp
 cd lucid-mcp
 npm install
 npm run build
