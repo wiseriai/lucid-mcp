@@ -1,4 +1,6 @@
 import Database from "better-sqlite3";
+import fs from "node:fs";
+import path from "node:path";
 import type { SemanticStatus } from "../types.js";
 import { getConfig } from "../config.js";
 
@@ -10,7 +12,13 @@ export class CatalogStore {
 
   constructor(dbPath?: string) {
     const config = getConfig();
-    this.db = new Database(dbPath ?? config.catalog.dbPath);
+    const resolvedPath = dbPath ?? config.catalog.dbPath;
+    // Ensure parent directory exists (critical when running from arbitrary cwd)
+    const dir = path.dirname(resolvedPath);
+    if (dir && dir !== ".") {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    this.db = new Database(resolvedPath);
     this.initialize();
   }
 

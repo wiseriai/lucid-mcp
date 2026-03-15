@@ -1,4 +1,21 @@
 import type { LucidConfig } from "./types.js";
+import os from "node:os";
+import path from "node:path";
+
+/**
+ * Resolve the data directory for Lucid MCP.
+ * Priority:
+ * 1. LUCID_DATA_DIR env var (explicit override)
+ * 2. ~/.lucid-mcp/ (user home, always writable, works regardless of cwd)
+ */
+function resolveDataDir(): string {
+  if (process.env.LUCID_DATA_DIR) {
+    return process.env.LUCID_DATA_DIR;
+  }
+  return path.join(os.homedir(), ".lucid-mcp");
+}
+
+const dataDir = resolveDataDir();
 
 const DEFAULT_CONFIG: LucidConfig = {
   server: {
@@ -12,10 +29,10 @@ const DEFAULT_CONFIG: LucidConfig = {
     memoryLimit: "2GB",
   },
   semantic: {
-    storePath: "./semantic_store",
+    storePath: path.join(dataDir, "semantic_store"),
   },
   catalog: {
-    dbPath: "./lucid-catalog.db",
+    dbPath: path.join(dataDir, "lucid-catalog.db"),
     autoProfile: true,
   },
   logging: {
