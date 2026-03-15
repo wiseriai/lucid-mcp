@@ -63,11 +63,23 @@ Claude:
 
 ---
 
+## Supported Platforms
+
+| Platform | Status | Config |
+|----------|--------|--------|
+| Claude Desktop | ✅ Verified | See below |
+| Cursor | ✅ Native MCP support | Same config format |
+| OpenClaw | ✅ Native MCP support | Same config format |
+| Windsurf | ✅ Native MCP support | Same config format |
+| Continue.dev | ✅ Native MCP support | Same config format |
+
+---
+
 ## Quick Start
 
 ### 1. Add to Claude Desktop
 
-Edit `~/Library/Application Support/Claude/claude_desktop_config.json`:
+**Claude Desktop** — Edit `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 ```json
 {
@@ -80,7 +92,37 @@ Edit `~/Library/Application Support/Claude/claude_desktop_config.json`:
 }
 ```
 
-Restart Claude Desktop.
+**Cursor** — Edit `.cursor/mcp.json` in your project (or global `~/.cursor/mcp.json`):
+
+```json
+{
+  "mcpServers": {
+    "lucid": {
+      "command": "npx",
+      "args": ["@wiseria/lucid-mcp"]
+    }
+  }
+}
+```
+
+**OpenClaw** — Add to your OpenClaw config:
+
+```json
+{
+  "plugins": {
+    "mcp": {
+      "servers": {
+        "lucid": {
+          "command": "npx",
+          "args": ["@wiseria/lucid-mcp"]
+        }
+      }
+    }
+  }
+}
+```
+
+Restart the host application after editing config.
 
 ### 2. Connect a data source
 
