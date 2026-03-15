@@ -181,6 +181,143 @@ describe("Lucid MCP — Sprint 1 E2E Tests", () => {
     });
   });
 
+  describe("Scenario 2: 语义层初始化 + 检索", () => {
+    it("2.1 init_semantic 获取全量 schema", async () => {
+      const response = await sendMessage({
+        jsonrpc: "2.0",
+        id: messageId++,
+        method: "tools/call",
+        params: {
+          name: "init_semantic",
+          arguments: {},
+        },
+      });
+
+      expect(response.result).toBeDefined();
+      const result = response.result as { content?: Array<{ text: string }>; isError?: boolean };
+      expect(result.isError).toBeFalsy();
+      const data = JSON.parse(result.content![0].text);
+      expect(data.tables.length).toBeGreaterThan(0);
+      expect(data.tables[0].columns.length).toBeGreaterThan(0);
+      console.log("✅ init_semantic:", data.message);
+    });
+
+    it("2.2 update_semantic 写入语义", async () => {
+      const response = await sendMessage({
+        jsonrpc: "2.0",
+        id: messageId++,
+        method: "tools/call",
+        params: {
+          name: "update_semantic",
+          arguments: {
+            tables: [
+              {
+                table_name: "orders",
+                description: "订单记录，包含销售额、折扣、利润等关键商业指标",
+                business_domain: "电商/交易",
+                tags: ["核心表", "财务", "订单"],
+                columns: [
+                  { name: "Order ID", semantic: "订单唯一标识", role: "primary_key" },
+                  { name: "Sales", semantic: "订单销售额", role: "measure", unit: "CNY", aggregation: "sum" },
+                  { name: "Profit", semantic: "订单利润", role: "measure", unit: "CNY", aggregation: "sum" },
+                  { name: "Quantity", semantic: "购买数量", role: "measure", aggregation: "sum" },
+                  { name: "Discount", semantic: "折扣率", role: "measure" },
+                  { name: "Category", semantic: "商品分类", role: "dimension" },
+                  { name: "Sub-Category", semantic: "商品子分类", role: "dimension" },
+                  { name: "Segment", semantic: "客户段（消费者/企业/居家办公）", role: "dimension" },
+                  { name: "Region", semantic: "区域", role: "dimension" },
+                  { name: "City", semantic: "城市", role: "dimension" },
+                  { name: "State", semantic: "省份", role: "dimension" },
+                  { name: "Customer Name", semantic: "客户名称", role: "dimension" },
+                  { name: "Product Name", semantic: "产品名称", role: "dimension" },
+                  { name: "Order Date", semantic: "下单时间", role: "timestamp", granularity: ["day", "month", "year"] },
+                  { name: "Ship Date", semantic: "发货时间", role: "timestamp" },
+                ],
+                metrics: [
+                  { name: "总销售额", expression: "SUM(Sales)" },
+                  { name: "总利润", expression: "SUM(Profit)" },
+                  { name: "日订单数", expression: "COUNT(DISTINCT \"Order ID\")", group_by: "CAST(\"Order Date\" AS DATE)" },
+                ],
+              },
+            ],
+          },
+        },
+      });
+
+      expect(response.result).toBeDefined();
+      const result = response.result as { content?: Array<{ text: string }>; isError?: boolean };
+      expect(result.isError).toBeFalsy();
+      const data = JSON.parse(result.content![0].text);
+      expect(data.results[0].status).toBe("updated");
+      expect(data.indexedCount).toBeGreaterThan(0);
+      console.log("✅ update_semantic:", data.message);
+    });
+
+    it("2.3 search_tables 检索相关表（销售额）", async () => {
+      const response = await sendMessage({
+        jsonrpc: "2.0",
+        id: messageId++,
+        method: "tools/call",
+        params: {
+          name: "search_tables",
+          arguments: {
+            query: "销售额 分类",
+          },
+        },
+      });
+
+      expect(response.result).toBeDefined();
+      const result = response.result as { content?: Array<{ text: string }>; isError?: boolean };
+      expect(result.isError).toBeFalsy();
+      const data = JSON.parse(result.content![0].text);
+      expect(data.results.length).toBeGreaterThan(0);
+      expect(data.results[0].tableName).toBe("orders");
+      console.log("✅ search_tables:", data.message);
+    });
+
+    it("2.4 search_tables 检索（客户 订单）", async () => {
+      const response = await sendMessage({
+        jsonrpc: "2.0",
+        id: messageId++,
+        method: "tools/call",
+        params: {
+          name: "search_tables",
+          arguments: {
+            query: "客户 订单",
+          },
+        },
+      });
+
+      expect(response.result).toBeDefined();
+      const result = response.result as { content?: Array<{ text: string }>; isError?: boolean };
+      expect(result.isError).toBeFalsy();
+      const data = JSON.parse(result.content![0].text);
+      expect(data.results.length).toBeGreaterThan(0);
+      console.log("✅ search_tables (客户 订单):", data.results[0].tableName);
+    });
+
+    it("2.5 search_tables 检索（不存在的关键词）", async () => {
+      const response = await sendMessage({
+        jsonrpc: "2.0",
+        id: messageId++,
+        method: "tools/call",
+        params: {
+          name: "search_tables",
+          arguments: {
+            query: "zzzznonexistent",
+          },
+        },
+      });
+
+      expect(response.result).toBeDefined();
+      const result = response.result as { content?: Array<{ text: string }>; isError?: boolean };
+      expect(result.isError).toBeFalsy();
+      const data = JSON.parse(result.content![0].text);
+      expect(data.results.length).toBe(0);
+      console.log("✅ search_tables (not found):", data.message);
+    });
+  });
+
   describe("Scenario 3: SQL 安全检查", () => {
     it("3.1 禁止 INSERT", async () => {
       const response = await sendMessage({
