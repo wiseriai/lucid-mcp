@@ -2,7 +2,7 @@
 
 **AI-native data analysis agent as an MCP Server.**
 
-Connect your Excel files, CSVs, and MySQL databases. Understand business semantics. Query with natural language.
+Connect your Excel files, CSVs, MySQL, and PostgreSQL databases. Understand business semantics. Query with natural language.
 
 ```jsonc
 // Claude Desktop / Cursor config
@@ -26,7 +26,7 @@ Lucid MCP gives your AI assistant (Claude, Cursor, etc.) structured access to yo
 
 | Tool | What it does |
 |------|-------------|
-| `connect_source` | Connect Excel / CSV / MySQL. Auto-collects schema + profiling. |
+| `connect_source` | Connect Excel / CSV / MySQL / PostgreSQL. Auto-collects schema + profiling. |
 | `list_tables` | List all connected tables with row counts and semantic status. |
 | `describe_table` | View column types, sample data, and business semantics. |
 | `profile_data` | Deep stats: null rate, distinct count, min/max, quartiles. |
@@ -155,6 +155,7 @@ Claude will call `init_semantic` to get the schema, infer business meanings for 
 | Excel | `.xlsx`, `.xls` | Multiple sheets supported |
 | CSV | `.csv` | Auto-detects encoding and delimiter |
 | MySQL | MySQL 5.7+ / 8.0+ | Reads foreign keys and column comments |
+| PostgreSQL | PostgreSQL 12+ | Reads foreign keys and column comments via `pg_description` |
 
 ---
 

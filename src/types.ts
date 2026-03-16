@@ -4,7 +4,7 @@
 
 // ── Data Source Types ──
 
-export type SourceType = "excel" | "csv" | "mysql";
+export type SourceType = "excel" | "csv" | "mysql" | "postgresql";
 
 export interface ExcelSourceConfig {
   type: "excel";
@@ -26,7 +26,17 @@ export interface MySQLSourceConfig {
   password: string;
 }
 
-export type SourceConfig = ExcelSourceConfig | CsvSourceConfig | MySQLSourceConfig;
+export interface PostgreSQLSourceConfig {
+  type: "postgresql";
+  host: string;
+  port?: number;
+  database: string;
+  username: string;
+  password: string;
+  schema?: string;
+}
+
+export type SourceConfig = ExcelSourceConfig | CsvSourceConfig | MySQLSourceConfig | PostgreSQLSourceConfig;
 
 // ── Schema Types ──
 

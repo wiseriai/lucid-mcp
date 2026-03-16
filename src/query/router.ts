@@ -1,15 +1,17 @@
 import type { QueryResult } from "../types.js";
 import type { Connector } from "../connectors/base.js";
 import { MySQLConnector } from "../connectors/mysql.js";
+import { PostgresConnector } from "../connectors/postgres.js";
 import { QueryEngine } from "./engine.js";
 import { checkSqlSafety } from "./safety.js";
 
 /**
- * Query router — decides whether to execute via MySQL directly or DuckDB.
+ * Query router — decides whether to execute via MySQL/PostgreSQL directly or DuckDB.
  *
  * Routing logic:
  * - Pure DuckDB tables (Excel/CSV) → DuckDB engine
  * - Pure MySQL query (all referenced tables from same MySQL source) → MySQL direct
+ * - Pure PostgreSQL query (all referenced tables from same PG source) → PostgreSQL direct
  * - Mixed / unknown → DuckDB (data already loaded at connect time)
  */
 export class QueryRouter {
@@ -38,9 +40,9 @@ export class QueryRouter {
       throw new Error(`SQL safety check failed: ${check.reason}`);
     }
 
-    const mysqlSource = this.detectMysqlSource(sql);
-    if (mysqlSource) {
-      return this.executeOnMySQL(mysqlSource, sql, maxRows);
+    const directSource = this.detectDirectSource(sql);
+    if (directSource) {
+      return this.executeOnDirectSource(directSource, sql, maxRows);
     }
 
     return this.engine.execute(sql, maxRows);
@@ -51,10 +53,10 @@ export class QueryRouter {
   }
 
   /**
-   * Detect if all referenced tables in the SQL belong to the same MySQL source.
-   * Returns the source_id if yes, null otherwise.
+   * Detect if all referenced tables in the SQL belong to the same direct-query source
+   * (MySQL or PostgreSQL). Returns the source_id if yes, null otherwise.
    */
-  private detectMysqlSource(sql: string): string | null {
+  private detectDirectSource(sql: string): string | null {
     // Extract table names from SQL (simple regex, covers common patterns)
     const tablePattern = /(?:FROM|JOIN)\s+[`"]?(\w+)[`"]?/gi;
     const mentioned: string[] = [];
@@ -66,17 +68,17 @@ export class QueryRouter {
 
     if (mentioned.length === 0) return null;
 
-    // Check if all mentioned tables belong to the same MySQL source
+    // Check if all mentioned tables belong to the same direct-query source
     let candidateSource: string | null = null;
     for (const tableName of mentioned) {
       const sourceId = this.tableSourceMap.get(tableName);
       if (!sourceId) return null; // Unknown table, fall back to DuckDB
-      if (!sourceId.startsWith("mysql:")) return null; // Not MySQL
+      if (!sourceId.startsWith("mysql:") && !sourceId.startsWith("postgresql:")) return null;
 
       if (candidateSource === null) {
         candidateSource = sourceId;
       } else if (candidateSource !== sourceId) {
-        return null; // Tables from different MySQL sources — need DuckDB
+        return null; // Tables from different sources — need DuckDB
       }
     }
 
@@ -84,15 +86,16 @@ export class QueryRouter {
   }
 
   /**
-   * Execute a query directly on MySQL and wrap result in QueryResult format.
+   * Execute a query directly on the source database (MySQL or PostgreSQL)
+   * and wrap result in QueryResult format.
    */
-  private async executeOnMySQL(
+  private async executeOnDirectSource(
     sourceId: string,
     sql: string,
     maxRows?: number,
   ): Promise<QueryResult> {
     const connector = this.connectors.get(sourceId);
-    if (!connector || !(connector instanceof MySQLConnector)) {
+    if (!connector || (!(connector instanceof MySQLConnector) && !(connector instanceof PostgresConnector))) {
       // Fallback to DuckDB
       return this.engine.execute(sql, maxRows);
     }

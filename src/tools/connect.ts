@@ -3,6 +3,7 @@ import type { SourceConfig, TableInfo } from "../types.js";
 import { ExcelConnector } from "../connectors/excel.js";
 import { CsvConnector } from "../connectors/csv.js";
 import { MySQLConnector } from "../connectors/mysql.js";
+import { PostgresConnector } from "../connectors/postgres.js";
 import { CatalogStore } from "../catalog/store.js";
 import { QueryEngine } from "../query/engine.js";
 import { QueryRouter } from "../query/router.js";
@@ -42,6 +43,9 @@ export async function handleConnectSource(
       break;
     case "mysql":
       connector = new MySQLConnector();
+      break;
+    case "postgresql":
+      connector = new PostgresConnector();
       break;
     default:
       throw new Error(`Unsupported source type: ${(config as { type: string }).type}`);

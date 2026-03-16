@@ -59,16 +59,17 @@ export async function createServer(): Promise<McpServer> {
   // ── Tool: connect_source ──────────────────────────────────────────────────
   server.tool(
     "connect_source",
-    "Connect a data source (Excel, CSV, or MySQL). Automatically collects schema and basic profiling.",
+    "Connect a data source (Excel, CSV, MySQL, or PostgreSQL). Automatically collects schema and basic profiling.",
     {
-      type: z.enum(["excel", "csv", "mysql"]).describe("Data source type"),
+      type: z.enum(["excel", "csv", "mysql", "postgresql"]).describe("Data source type"),
       path: z.string().optional().describe("File path for Excel/CSV sources"),
       sheets: z.array(z.string()).optional().describe("Sheet names to load (Excel only, default: all)"),
-      host: z.string().optional().describe("MySQL host"),
-      port: z.number().optional().describe("MySQL port (default: 3306)"),
-      database: z.string().optional().describe("MySQL database name"),
-      username: z.string().optional().describe("MySQL username"),
-      password: z.string().optional().describe("MySQL password"),
+      host: z.string().optional().describe("Database host (MySQL/PostgreSQL)"),
+      port: z.number().optional().describe("Database port (MySQL: 3306, PostgreSQL: 5432)"),
+      database: z.string().optional().describe("Database name"),
+      username: z.string().optional().describe("Database username"),
+      password: z.string().optional().describe("Database password"),
+      schema: z.string().optional().describe("PostgreSQL schema (default: public)"),
     },
     async (params) => {
       try {
