@@ -4,142 +4,48 @@
 
 Connect your Excel files, CSVs, MySQL, and PostgreSQL databases. Understand business semantics. Query with natural language.
 
-```jsonc
-// Claude Desktop / Cursor config
-{
-  "mcpServers": {
-    "lucid": {
-      "command": "npx",
-      "args": ["@wiseria/lucid-mcp"]
-    }
-  }
-}
-```
-
 No API key required. No LLM inside the server. Just plug in and ask questions.
 
 ---
 
-## What it does
+## Installation & Setup (for AI Agents)
 
-Lucid MCP gives your AI assistant (Claude, Cursor, etc.) structured access to your business data:
+> **If you are an AI agent** reading this README, follow the steps below to install and configure Lucid MCP for the user. Do not ask the user to run commands — do it yourself.
 
-| Tool | What it does |
-|------|-------------|
-| `connect_source` | Connect Excel / CSV / MySQL / PostgreSQL. Auto-collects schema + profiling. |
-| `get_overview` | Get an overview of all connected sources, tables, semantic status. Always call first. |
-| `list_tables` | List all connected tables with row counts and semantic status. |
-| `describe_table` | View column types, sample data, and business semantics. |
-| `profile_data` | Deep stats: null rate, distinct count, min/max, quartiles. |
-| `init_semantic` | Export schema + samples for LLM to infer business meaning. |
-| `update_semantic` | Save semantic definitions (YAML) + update search index. |
-| `search_tables` | Natural language search → relevant tables + JOIN hints + metrics. |
-| `get_join_paths` | Discover JOIN paths between two tables (FK + column name + embedding signals, direct + indirect). |
-| `get_business_domains` | Auto-discovered business domains via hierarchical clustering. |
-| `query` | Execute read-only SQL (SELECT only). Returns markdown/JSON/CSV. |
+### Step 1: Verify Node.js
 
----
+Run `node -v` to confirm Node.js 18+ is installed. If not, inform the user they need Node.js 18+ before proceeding.
 
-## How it works
-
-```
-You: "上个月哪个客户下单金额最多？"
-
-Claude:
-  1. search_tables("上月 销售 客户")
-     → orders 表 (有 Sales 字段、Customer Name、Order Date)
-
-  2. 生成 SQL:
-     SELECT "Customer Name", SUM("Sales") as total
-     FROM orders
-     WHERE "Order Date" >= '2024-02-01'
-       AND "Order Date" < '2024-03-01'
-     GROUP BY "Customer Name"
-     ORDER BY total DESC
-     LIMIT 10
-
-  3. query(sql) → 返回结果表格
-  4. 解读结果给你
-```
-
-**Design principle: Server has no LLM.** All semantic inference and SQL generation is done by the host agent. The server handles deterministic operations only — connecting, cataloging, indexing, querying.
-
----
-
-## Supported Platforms
-
-| Platform | Status | Config |
-|----------|--------|--------|
-| Claude Desktop | ✅ Verified | See below |
-| Cursor | ✅ Native MCP support | Same config format |
-| OpenClaw | ✅ Native MCP support | Same config format |
-| Windsurf | ✅ Native MCP support | Same config format |
-| Continue.dev | ✅ Native MCP support | Same config format |
-
----
-
-## Quick Start
-
-### Prerequisites
-
-- **Node.js 18+** (recommended 20+) — check with `node -v`
-- **npm** (comes with Node.js)
-
-### Installation
-
-**Option 1: Zero-install (recommended)** — no global install needed, always runs the latest version:
-
-```bash
-npx @wiseria/lucid-mcp
-```
-
-Just use `npx @wiseria/lucid-mcp` in your MCP config (see below).
-
-**Option 2: Global install** — faster startup, no download on each launch:
+### Step 2: Install globally
 
 ```bash
 npm install -g @wiseria/lucid-mcp
 ```
 
-Then use `lucid-mcp` as the command in your MCP config.
+This makes the `lucid-mcp` command available system-wide. Alternatively, use `npx @wiseria/lucid-mcp` (downloads on first run, no install needed).
 
-**Option 3: Local install** — pin to a specific version in a project:
+### Step 3: Add to MCP config
 
-```bash
-npm install @wiseria/lucid-mcp
-```
+Detect which platform the user is on and write the config:
 
-Use the full path `./node_modules/.bin/lucid-mcp` in your MCP config.
+**Claude Desktop**
+- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- Windows: `%APPDATA%\Claude\claude_desktop_config.json`
 
-### 1. Configure your platform
+**Cursor**
+- Project: `.cursor/mcp.json`
+- Global: `~/.cursor/mcp.json`
 
-Choose your platform and add the config:
+**OpenClaw**
+- `~/.openclaw/openclaw.json` → `mcpServers` section
 
-<details>
-<summary><strong>Claude Desktop</strong></summary>
+**Windsurf**
+- `~/.windsurf/mcp.json`
 
-Config file location:
-- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+**Continue.dev**
+- `~/.continue/config.json` → `experimental.modelContextProtocolServers`
 
-```json
-{
-  "mcpServers": {
-    "lucid": {
-      "command": "npx",
-      "args": ["@wiseria/lucid-mcp"]
-    }
-  }
-}
-```
-</details>
-
-<details>
-<summary><strong>Cursor</strong></summary>
-
-Config file location:
-- **Project-level**: `.cursor/mcp.json` (in your project root)
-- **Global**: `~/.cursor/mcp.json`
+Config content (same for all except Continue.dev):
 
 ```json
 {
@@ -151,47 +57,8 @@ Config file location:
   }
 }
 ```
-</details>
 
-<details>
-<summary><strong>OpenClaw</strong></summary>
-
-Config file: `~/.openclaw/openclaw.json`
-
-```json
-{
-  "mcpServers": {
-    "lucid": {
-      "command": "npx",
-      "args": ["@wiseria/lucid-mcp"]
-    }
-  }
-}
-```
-</details>
-
-<details>
-<summary><strong>Windsurf</strong></summary>
-
-Config file: `~/.windsurf/mcp.json`
-
-```json
-{
-  "mcpServers": {
-    "lucid": {
-      "command": "npx",
-      "args": ["@wiseria/lucid-mcp"]
-    }
-  }
-}
-```
-</details>
-
-<details>
-<summary><strong>Continue.dev</strong></summary>
-
-Config file: `~/.continue/config.json`, add under `experimental.modelContextProtocolServers`:
-
+For Continue.dev:
 ```json
 {
   "experimental": {
@@ -207,23 +74,33 @@ Config file: `~/.continue/config.json`, add under `experimental.modelContextProt
   }
 }
 ```
-</details>
 
-Restart the host application after editing config.
-
-### Verify Installation
-
-```bash
-npx @wiseria/lucid-mcp --version
+To enable embedding hybrid search (optional, downloads ~460MB model on first run):
+```json
+{
+  "mcpServers": {
+    "lucid": {
+      "command": "npx",
+      "args": ["@wiseria/lucid-mcp"],
+      "env": { "LUCID_EMBEDDING_ENABLED": "true" }
+    }
+  }
+}
 ```
 
-Or launch the server and connect a CSV to verify everything works:
+### Step 4: Restart the host application
 
-> "Connect my CSV file at /path/to/data.csv"
+After writing the config, tell the user to restart Claude Desktop / Cursor / etc. for the MCP server to load.
 
-### Data Directory
+### Step 5: Verify
 
-Lucid MCP stores data in `~/.lucid-mcp/`:
+Once restarted, call `get_overview()` to confirm the server is running. An empty overview (no sources) is normal for first launch.
+
+---
+
+## Data Directory
+
+All data is stored in `~/.lucid-mcp/`:
 
 | Path | Purpose |
 |------|---------|
@@ -231,36 +108,72 @@ Lucid MCP stores data in `~/.lucid-mcp/`:
 | `semantic_store/` | Semantic YAML definitions (human-readable, Git-friendly) |
 | `models/` | Downloaded embedding model (only if embedding enabled) |
 
-Customize the data directory via the `LUCID_DATA_DIR` environment variable.
+Override with `LUCID_DATA_DIR` environment variable.
 
-### Environment Variables
+---
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `LUCID_DATA_DIR` | `~/.lucid-mcp` | Data directory for catalog, semantic store, models |
-| `LUCID_EMBEDDING_ENABLED` | `false` | Enable embedding hybrid search (downloads ~460MB model on first run) |
+## Tools (11)
 
-### 2. Connect a data source
+| Tool | What it does |
+|------|-------------|
+| `get_overview` | **Start here.** Shows all connected sources, tables, row counts, semantic status. |
+| `connect_source` | Connect Excel / CSV / MySQL / PostgreSQL. Auto-collects schema + profiling. |
+| `list_tables` | List all connected tables with row counts and semantic status. |
+| `describe_table` | View column types, sample data, and business semantics. |
+| `profile_data` | Deep stats: null rate, distinct count, min/max, quartiles. |
+| `init_semantic` | Export schema + samples for LLM to infer business meaning. |
+| `update_semantic` | Save semantic definitions (YAML) + update search index. |
+| `search_tables` | Natural language search → relevant tables + JOIN hints + metrics. |
+| `get_join_paths` | Discover JOIN paths between two tables (direct + indirect via 1 hop). |
+| `get_business_domains` | Auto-discovered business domains via hierarchical clustering. |
+| `query` | Execute read-only SQL (SELECT only). Returns markdown/JSON/CSV. |
 
-Ask Claude:
+---
 
-> "Connect my Excel file at /Users/me/sales.xlsx"
+## Workflow
 
-Claude will call `connect_source` and report back the tables it found.
+### First time with a data source
 
-### 3. Initialize semantics (optional but recommended)
+```
+1. get_overview()                          → check current state
+2. connect_source(type, path/host/...)     → connect data
+3. init_semantic()                         → get schema for inference
+4. update_semantic(tables=[...])           → save business meanings
+5. search_tables("用户的问题")              → find relevant tables
+6. get_join_paths(table_a, table_b)        → discover how to JOIN
+7. query(sql="SELECT ...")                 → execute and return results
+```
 
-Ask Claude:
+### Returning (server auto-restores previous connections)
 
-> "Initialize the semantic layer for my data"
+```
+1. get_overview()                          → see what's already connected
+2. search_tables("用户的问题")              → find relevant tables
+3. query(sql="SELECT ...")                 → execute
+```
 
-Claude will call `init_semantic` to get the schema, infer business meanings for each table and column, then call `update_semantic` to save them. After this, natural language search works much better.
+---
 
-### 4. Start asking questions
+## How it works
 
-> "Which product category had the highest profit margin last quarter?"
-> "Show me the top 10 customers by revenue"
-> "What's the average order value by region?"
+```
+You: "上个月哪个客户下单金额最多？"
+
+Agent:
+  1. search_tables("上月 销售 客户")
+     → orders 表 (有 Sales 字段、Customer Name、Order Date)
+     → suggestedJoins, suggestedMetricSqls
+
+  2. get_join_paths("orders", "customers")
+     → JOIN orders ON orders.customer_id = customers.id
+
+  3. query(sql)
+     → 返回结果表格
+
+  4. 解读结果给用户
+```
+
+**Design principle: Server has no LLM.** All semantic inference and SQL generation is done by the host agent. The server handles deterministic operations only — connecting, cataloging, indexing, querying.
 
 ---
 
@@ -277,7 +190,7 @@ Claude will call `init_semantic` to get the schema, infer business meanings for 
 
 ## Semantic Layer
 
-Lucid stores business semantics as YAML files in `./semantic_store/`. These are:
+Lucid stores business semantics as YAML files in `~/.lucid-mcp/semantic_store/`. These are:
 
 - **Human-readable** — edit them directly if needed
 - **Git-friendly** — commit and version your semantic definitions
@@ -310,24 +223,6 @@ metrics:
 
 ---
 
-## Configuration
-
-Optional config file `lucid.config.yaml` in your working directory:
-
-```yaml
-query:
-  maxRows: 1000        # Max rows per query (default: 1000)
-  timeoutSeconds: 30   # Query timeout (default: 30)
-
-semantic:
-  storePath: ./semantic_store   # Where to save YAML files
-
-catalog:
-  dbPath: ./lucid-catalog.db   # SQLite metadata cache
-```
-
----
-
 ## JOIN Path Discovery
 
 `get_join_paths` automatically discovers how two tables can be joined — using foreign keys, matching column names, and embedding similarity. It finds both direct joins and indirect paths via one intermediate table, ranked by confidence.
@@ -338,36 +233,12 @@ catalog:
 
 ---
 
-## Embedding Hybrid Search (Optional)
+## Environment Variables
 
-Enable embedding-based hybrid search for better multilingual and semantic matching. When enabled, `search_tables` uses both BM25 keyword search and vector similarity, fused with Reciprocal Rank Fusion (RRF).
-
-**How to enable:**
-
-```bash
-# Via environment variable
-LUCID_EMBEDDING_ENABLED=true npx @wiseria/lucid-mcp
-```
-
-Or in Claude Desktop config:
-```json
-{
-  "mcpServers": {
-    "lucid": {
-      "command": "npx",
-      "args": ["@wiseria/lucid-mcp"],
-      "env": {
-        "LUCID_EMBEDDING_ENABLED": "true"
-      }
-    }
-  }
-}
-```
-
-**Notes:**
-- First launch downloads ~460MB multilingual model (`paraphrase-multilingual-MiniLM-L12-v2`) to `~/.lucid-mcp/models/`
-- Model loading is async — search works immediately via BM25, embedding kicks in once ready
-- Default: **disabled** — no impact on startup time or disk usage when off
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `LUCID_DATA_DIR` | `~/.lucid-mcp` | Data directory for catalog, semantic store, models |
+| `LUCID_EMBEDDING_ENABLED` | `false` | Enable embedding hybrid search (downloads ~460MB model on first run) |
 
 ---
 
