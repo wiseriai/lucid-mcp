@@ -41,7 +41,7 @@ export async function createServer(): Promise<McpServer> {
   const { restored, failed } = await autoRestoreConnections(catalog, engine, router, semanticIndex, embedder);
   if (restored > 0 || failed.length > 0) {
     process.stderr.write(
-      `[lucid-mcp] startup: restored ${restored} source(s)${failed.length ? `, failed: ${failed.join("; ")}` : ""}\n`,
+      `[lucid-skill] startup: restored ${restored} source(s)${failed.length ? `, failed: ${failed.join("; ")}` : ""}\n`,
     );
   }
 

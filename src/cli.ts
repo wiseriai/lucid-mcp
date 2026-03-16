@@ -1,5 +1,5 @@
 /**
- * CLI entry point for lucid-mcp.
+ * CLI entry point for lucid-skill.
  * Parses process.argv and dispatches to the appropriate tool handler.
  */
 
@@ -46,7 +46,7 @@ async function initRuntime(): Promise<Runtime> {
   const { restored, failed } = await autoRestoreConnections(catalog, engine, router, semanticIndex, embedder);
   if (restored > 0 || failed.length > 0) {
     process.stderr.write(
-      `[lucid-mcp] restored ${restored} source(s)${failed.length ? `, failed: ${failed.join("; ")}` : ""}\n`,
+      `[lucid-skill] restored ${restored} source(s)${failed.length ? `, failed: ${failed.join("; ")}` : ""}\n`,
     );
   }
 
@@ -91,9 +91,9 @@ function getVersion(): string {
 
 // ── Help text ────────────────────────────────────────────────────────────────
 
-const HELP = `lucid-mcp — AI-native data analysis agent
+const HELP = `lucid-skill — AI-native data analysis agent
 
-Usage: lucid-mcp <command> [args] [--flags]
+Usage: lucid-skill <command> [args] [--flags]
 
 Commands:
   serve                              Start MCP Server (default)
@@ -152,19 +152,19 @@ export async function runCli(argv: string[]): Promise<void> {
 
       case "connect": {
         const type = args[1];
-        if (!type) throw new Error("Usage: lucid-mcp connect <csv|excel|mysql|postgres>");
+        if (!type) throw new Error("Usage: lucid-skill connect <csv|excel|mysql|postgres>");
 
         let params: Record<string, unknown>;
         switch (type) {
           case "csv": {
             const p = args[2];
-            if (!p) throw new Error("Usage: lucid-mcp connect csv <path>");
+            if (!p) throw new Error("Usage: lucid-skill connect csv <path>");
             params = { type: "csv", path: p };
             break;
           }
           case "excel": {
             const p = args[2];
-            if (!p) throw new Error("Usage: lucid-mcp connect excel <path> [--sheets s1,s2]");
+            if (!p) throw new Error("Usage: lucid-skill connect excel <path> [--sheets s1,s2]");
             params = { type: "excel", path: p } as Record<string, unknown>;
             const sheets = getFlag(args, "sheets");
             if (sheets) (params as Record<string, unknown>).sheets = sheets.split(",");
@@ -180,7 +180,7 @@ export async function runCli(argv: string[]): Promise<void> {
               password: getFlag(args, "password"),
             };
             if (!params.host || !params.database || !params.username)
-              throw new Error("Usage: lucid-mcp connect mysql --host h --database db --username u --password p");
+              throw new Error("Usage: lucid-skill connect mysql --host h --database db --username u --password p");
             break;
           }
           case "postgres": {
@@ -194,7 +194,7 @@ export async function runCli(argv: string[]): Promise<void> {
               schema: getFlag(args, "schema"),
             };
             if (!params.host || !params.database || !params.username)
-              throw new Error("Usage: lucid-mcp connect postgres --host h --database db --username u --password p");
+              throw new Error("Usage: lucid-skill connect postgres --host h --database db --username u --password p");
             break;
           }
           default:
@@ -223,7 +223,7 @@ export async function runCli(argv: string[]): Promise<void> {
 
       case "describe": {
         const table = args[1];
-        if (!table) throw new Error("Usage: lucid-mcp describe <table_name>");
+        if (!table) throw new Error("Usage: lucid-skill describe <table_name>");
         const result = await handleDescribeTable({ table_name: table }, rt.catalog, rt.engine);
         process.stdout.write(result + "\n");
         break;
@@ -231,7 +231,7 @@ export async function runCli(argv: string[]): Promise<void> {
 
       case "profile": {
         const table = args[1];
-        if (!table) throw new Error("Usage: lucid-mcp profile <table_name>");
+        if (!table) throw new Error("Usage: lucid-skill profile <table_name>");
         const result = await handleProfileData({ table_name: table }, rt.catalog, rt.engine);
         process.stdout.write(result + "\n");
         break;
@@ -246,7 +246,7 @@ export async function runCli(argv: string[]): Promise<void> {
 
       case "update-semantic": {
         const fileArg = args[1];
-        if (!fileArg) throw new Error("Usage: lucid-mcp update-semantic <json_file | ->");
+        if (!fileArg) throw new Error("Usage: lucid-skill update-semantic <json_file | ->");
 
         let jsonStr: string;
         if (fileArg === "-") {
@@ -263,7 +263,7 @@ export async function runCli(argv: string[]): Promise<void> {
 
       case "search": {
         const query = args[1];
-        if (!query) throw new Error("Usage: lucid-mcp search <query> [--top-k 5]");
+        if (!query) throw new Error("Usage: lucid-skill search <query> [--top-k 5]");
         const topK = getFlag(args, "top-k") ? Number(getFlag(args, "top-k")) : 5;
         const result = await handleSearchTables({ query, top_k: topK }, rt.semanticIndex, rt.catalog, rt.embedder);
         process.stdout.write(result + "\n");
@@ -273,7 +273,7 @@ export async function runCli(argv: string[]): Promise<void> {
       case "join-paths": {
         const tableA = args[1];
         const tableB = args[2];
-        if (!tableA || !tableB) throw new Error("Usage: lucid-mcp join-paths <table_a> <table_b>");
+        if (!tableA || !tableB) throw new Error("Usage: lucid-skill join-paths <table_a> <table_b>");
         const result = await handleGetJoinPaths({ table_a: tableA, table_b: tableB }, rt.catalog, rt.embedder);
         process.stdout.write(result + "\n");
         break;
@@ -288,7 +288,7 @@ export async function runCli(argv: string[]): Promise<void> {
 
       case "query": {
         const sql = args[1];
-        if (!sql) throw new Error("Usage: lucid-mcp query <sql> [--format json|markdown|csv]");
+        if (!sql) throw new Error("Usage: lucid-skill query <sql> [--format json|markdown|csv]");
         const format = getFlag(args, "format") ?? "markdown";
         const result = await handleQuery({ sql, format }, rt.engine, rt.router);
         process.stdout.write(result + "\n");
@@ -296,7 +296,7 @@ export async function runCli(argv: string[]): Promise<void> {
       }
 
       default:
-        process.stderr.write(`Unknown command: ${cmd}\nRun 'lucid-mcp --help' for usage.\n`);
+        process.stderr.write(`Unknown command: ${cmd}\nRun 'lucid-skill --help' for usage.\n`);
         process.exit(1);
     }
   } catch (err) {

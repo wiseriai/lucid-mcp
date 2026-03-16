@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-lucid-mcp is an AI-native data analysis agent implemented as an MCP (Model Context Protocol) Server. It connects Claude and other AI apps to Excel, CSV, and MySQL data sources for schema discovery and SQL-based querying.
+lucid-skill is an AI-native data analysis skill that works as a CLI tool or MCP Server. It connects Claude and other AI apps to Excel, CSV, MySQL, and PostgreSQL data sources for schema discovery and SQL-based querying.
 
 ## Common Commands
 

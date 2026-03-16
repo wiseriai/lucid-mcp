@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 
 /**
- * Resolve the data directory for Lucid MCP.
+ * Resolve the data directory for lucid-skill.
  * Priority:
  * 1. LUCID_DATA_DIR env var (explicit override)
  * 2. ~/.lucid-mcp/ (user home, always writable, works regardless of cwd)
@@ -19,8 +19,8 @@ const dataDir = resolveDataDir();
 
 const DEFAULT_CONFIG: LucidConfig = {
   server: {
-    name: "lucid-mcp",
-    version: "0.1.0",
+    name: "lucid-skill",
+    version: "1.0.0",
     transport: "stdio",
   },
   query: {

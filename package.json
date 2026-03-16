@@ -1,10 +1,10 @@
 {
-  "name": "@wiseria/lucid-mcp",
-  "version": "0.3.0",
-  "description": "AI-native data analysis agent as MCP Server. Connect Excel/CSV/MySQL/PostgreSQL, understand business semantics, query with natural language.",
+  "name": "@wiseria/lucid-skill",
+  "version": "1.0.0",
+  "description": "AI-native data analysis skill. Connect Excel/CSV/MySQL/PostgreSQL, understand business semantics, query with natural language.",
   "type": "module",
   "bin": {
-    "lucid-mcp": "dist/index.js"
+    "lucid-skill": "dist/index.js"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -47,7 +47,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/WiseriaAI/lucid-mcp.git"
+    "url": "git+https://github.com/WiseriaAI/lucid-skill.git"
   },
   "keywords": [
     "mcp",

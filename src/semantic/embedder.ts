@@ -55,12 +55,12 @@ export class Embedder {
         cache_dir: this.cacheDir,
       });
       this.state = "ready";
-      process.stderr.write(`[lucid-mcp] embedder: model ${this.modelName} loaded\n`);
+      process.stderr.write(`[lucid-skill] embedder: model ${this.modelName} loaded\n`);
     } catch (err) {
       this.state = "error";
       this.initPromise = null;
       process.stderr.write(
-        `[lucid-mcp] embedder: failed to load model — ${err instanceof Error ? err.message : String(err)}\n`,
+        `[lucid-skill] embedder: failed to load model — ${err instanceof Error ? err.message : String(err)}\n`,
       );
     }
   }

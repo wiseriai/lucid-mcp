@@ -204,7 +204,7 @@ export class SemanticIndex {
     }
 
     if (count > 0) {
-      process.stderr.write(`[lucid-mcp] embedder: generated ${count} embedding(s)\n`);
+      process.stderr.write(`[lucid-skill] embedder: generated ${count} embedding(s)\n`);
     }
     return count;
   }

@@ -1,6 +1,6 @@
-# lucid-mcp
+# lucid-skill
 
-**AI-native data analysis agent as an MCP Server.**
+**AI-native data analysis skill — works as CLI tool or MCP Server.**
 
 Connect your Excel files, CSVs, MySQL, and PostgreSQL databases. Understand business semantics. Query with natural language.
 
@@ -10,7 +10,7 @@ No API key required. No LLM inside the server. Just plug in and ask questions.
 
 ## Installation & Setup (for AI Agents)
 
-> **If you are an AI agent** reading this README, follow the steps below to install and configure Lucid MCP for the user. Do not ask the user to run commands — do it yourself.
+> **If you are an AI agent** reading this README, follow the steps below to install and configure lucid-skill for the user. Do not ask the user to run commands — do it yourself.
 
 ### Step 1: Verify Node.js
 
@@ -19,10 +19,10 @@ Run `node -v` to confirm Node.js 18+ is installed. If not, inform the user they 
 ### Step 2: Install
 
 ```bash
-npm install -g @wiseria/lucid-mcp
+npm install -g @wiseria/lucid-skill
 ```
 
-This installs the `lucid-mcp` command globally. **This step is required** — the MCP server must be installed before it can be launched by the host application.
+This installs the `lucid-skill` command globally. **This step is required** — the tool must be installed before it can be used by the host application.
 
 ### Step 3: Add to MCP config
 
@@ -51,7 +51,7 @@ Config content (same for all except Continue.dev):
 {
   "mcpServers": {
     "lucid": {
-      "command": "lucid-mcp"
+      "command": "lucid-skill"
     }
   }
 }
@@ -65,7 +65,7 @@ For Continue.dev:
       {
         "transport": {
           "type": "stdio",
-          "command": "lucid-mcp"
+          "command": "lucid-skill"
         }
       }
     ]
@@ -78,7 +78,7 @@ To enable embedding hybrid search (optional, downloads ~460MB model on first run
 {
   "mcpServers": {
     "lucid": {
-      "command": "lucid-mcp",
+      "command": "lucid-skill",
       "env": { "LUCID_EMBEDDING_ENABLED": "true" }
     }
   }
@@ -97,7 +97,7 @@ Once restarted, call `get_overview()` to confirm the server is running. An empty
 
 ## Data Directory
 
-All data is stored in `~/.lucid-mcp/`:
+All data is stored in `~/.lucid-mcp/` (directory name kept for backward compatibility):
 
 | Path | Purpose |
 |------|---------|
@@ -250,8 +250,8 @@ metrics:
 ## Development
 
 ```bash
-git clone https://github.com/WiseriaAI/lucid-mcp
-cd lucid-mcp
+git clone https://github.com/WiseriaAI/lucid-skill
+cd lucid-skill
 npm install
 npm run build
 npm run dev    # Run with tsx (no build step)
