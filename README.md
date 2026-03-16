@@ -27,12 +27,15 @@ Lucid MCP gives your AI assistant (Claude, Cursor, etc.) structured access to yo
 | Tool | What it does |
 |------|-------------|
 | `connect_source` | Connect Excel / CSV / MySQL / PostgreSQL. Auto-collects schema + profiling. |
+| `get_overview` | Get an overview of all connected sources, tables, semantic status. Always call first. |
 | `list_tables` | List all connected tables with row counts and semantic status. |
 | `describe_table` | View column types, sample data, and business semantics. |
 | `profile_data` | Deep stats: null rate, distinct count, min/max, quartiles. |
 | `init_semantic` | Export schema + samples for LLM to infer business meaning. |
 | `update_semantic` | Save semantic definitions (YAML) + update search index. |
 | `search_tables` | Natural language search → relevant tables + JOIN hints + metrics. |
+| `get_join_paths` | Discover JOIN paths between two tables (FK + column name + embedding signals, direct + indirect). |
+| `get_business_domains` | Auto-discovered business domains via hierarchical clustering. |
 | `query` | Execute read-only SQL (SELECT only). Returns markdown/JSON/CSV. |
 
 ---
@@ -212,6 +215,16 @@ catalog:
 
 ---
 
+## JOIN Path Discovery
+
+`get_join_paths` automatically discovers how two tables can be joined — using foreign keys, matching column names, and embedding similarity. It finds both direct joins and indirect paths via one intermediate table, ranked by confidence.
+
+## Business Domain Discovery
+
+`get_business_domains` uses hierarchical clustering on table semantics and column overlap to group your tables into business domains (e.g., "Sales", "Inventory", "HR"). This gives the AI a high-level map of your data landscape before diving into specific queries.
+
+---
+
 ## Embedding Hybrid Search (Optional)
 
 Enable embedding-based hybrid search for better multilingual and semantic matching. When enabled, `search_tables` uses both BM25 keyword search and vector similarity, fused with Reciprocal Rank Fusion (RRF).
@@ -272,7 +285,8 @@ npm test       # Run e2e tests
 - [x] Sprint 2: Semantic layer (YAML), BM25 search index, natural language routing
 - [x] Sprint 3: Query routing (MySQL direct), npm publish
 - [x] V1: Embedding-based hybrid search (BM25 + vector)
-- [ ] V1: Parquet / large file support
+- [x] V2: JOIN path discovery, business domain clustering, get_overview
+- [ ] V2: Parquet / large file support
 - [ ] Commercial: Multi-tenancy, authentication, hosted version
 
 ---

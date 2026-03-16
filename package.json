@@ -1,6 +1,6 @@
 {
   "name": "@wiseria/lucid-mcp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "AI-native data analysis agent as MCP Server. Connect Excel/CSV/MySQL/PostgreSQL, understand business semantics, query with natural language.",
   "type": "module",
   "bin": {
