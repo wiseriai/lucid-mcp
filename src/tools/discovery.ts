@@ -5,7 +5,7 @@
 
 import type { CatalogStore } from "../catalog/store.js";
 import type { Embedder } from "../semantic/embedder.js";
-import { discoverJoinPaths, computeSchemaHash } from "../discovery/joins.js";
+import { discoverJoinPaths, computeSchemaHash, discoverCrossSourceJoinPaths, computeCrossSourceSchemaHash, CROSS_SOURCE_ID } from "../discovery/joins.js";
 import { discoverBusinessDomains } from "../discovery/domains.js";
 
 /**
@@ -48,7 +48,7 @@ export async function handleGetJoinPaths(
     for (const s of sourcesForB) relevantSources.add(s);
   }
 
-  // For each relevant source, check cache and discover if needed
+  // For each relevant source, check cache and discover if needed (within-source paths)
   for (const sourceId of relevantSources) {
     const meta = catalog.getCacheMeta(sourceId);
     const currentHash = computeSchemaHash(catalog, sourceId);
@@ -56,7 +56,6 @@ export async function handleGetJoinPaths(
     const needsRefresh = !meta || meta.dirty === 1 || meta.schemaHash !== currentHash;
 
     if (needsRefresh) {
-      // Clear old paths for this source and re-discover
       catalog.clearJoinPaths(sourceId);
       const paths = await discoverJoinPaths(catalog, sourceId, embedder);
       for (const p of paths) {
@@ -66,7 +65,23 @@ export async function handleGetJoinPaths(
     }
   }
 
-  // Fetch paths for the requested table pair
+  // Cross-source discovery: check cache and discover if needed
+  {
+    const crossMeta = catalog.getCacheMeta(CROSS_SOURCE_ID);
+    const crossHash = computeCrossSourceSchemaHash(catalog);
+    const needsCrossRefresh = !crossMeta || crossMeta.dirty === 1 || crossMeta.schemaHash !== crossHash;
+
+    if (needsCrossRefresh) {
+      catalog.clearJoinPaths(CROSS_SOURCE_ID);
+      const crossPaths = await discoverCrossSourceJoinPaths(catalog, embedder);
+      for (const p of crossPaths) {
+        catalog.saveJoinPath(p);
+      }
+      catalog.setCacheMeta(CROSS_SOURCE_ID, crossHash);
+    }
+  }
+
+  // Fetch paths for the requested table pair (includes both within-source and cross-source)
   const paths = catalog.getJoinPaths(tableA, tableB);
 
   const directPaths = paths.filter((p) => !p.signalSource.startsWith("indirect:"));

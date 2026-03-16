@@ -89,6 +89,7 @@ export async function createServer(): Promise<McpServer> {
 
         // Mark JOIN cache dirty so paths are re-discovered on next request
         catalog.markDirty(result.sourceId);
+        catalog.markDirty("__cross__");
 
         // Determine nextStep hint based on semantic_status of tables
         const tableMetas = catalog.getTables(result.sourceId);

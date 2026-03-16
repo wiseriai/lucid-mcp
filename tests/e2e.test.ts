@@ -562,6 +562,83 @@ describe("Lucid MCP — Sprint 1 E2E Tests", () => {
     });
   });
 
+  describe("Scenario 2d: Cross-Source JOIN Discovery", () => {
+    it("2d.1 连接两个独立 CSV source", async () => {
+      // Connect source A (orders)
+      const responseA = await sendMessage({
+        jsonrpc: "2.0",
+        id: messageId++,
+        method: "tools/call",
+        params: {
+          name: "connect_source",
+          arguments: {
+            type: "csv",
+            path: path.join(process.cwd(), "tests/datasets/cross-source-a"),
+          },
+        },
+      });
+      expect(responseA.result).toBeDefined();
+      expect(responseA.error).toBeUndefined();
+      const resultA = responseA.result as { content?: Array<{ text: string }>; isError?: boolean };
+      expect(resultA.isError).toBeFalsy();
+      const dataA = JSON.parse(resultA.content![0].text);
+      expect(dataA.tables.length).toBe(1);
+      console.log("✅ Cross-source A 连接成功:", dataA.tables.map((t: { name: string }) => t.name));
+
+      // Connect source B (customers)
+      const responseB = await sendMessage({
+        jsonrpc: "2.0",
+        id: messageId++,
+        method: "tools/call",
+        params: {
+          name: "connect_source",
+          arguments: {
+            type: "csv",
+            path: path.join(process.cwd(), "tests/datasets/cross-source-b"),
+          },
+        },
+      });
+      expect(responseB.result).toBeDefined();
+      expect(responseB.error).toBeUndefined();
+      const resultB = responseB.result as { content?: Array<{ text: string }>; isError?: boolean };
+      expect(resultB.isError).toBeFalsy();
+      const dataB = JSON.parse(resultB.content![0].text);
+      expect(dataB.tables.length).toBe(1);
+      console.log("✅ Cross-source B 连接成功:", dataB.tables.map((t: { name: string }) => t.name));
+    });
+
+    it("2d.2 get_join_paths: 跨 source 的 shop_orders ↔ shop_customers 通过 customer_id", async () => {
+      const response = await sendMessage({
+        jsonrpc: "2.0",
+        id: messageId++,
+        method: "tools/call",
+        params: {
+          name: "get_join_paths",
+          arguments: {
+            table_a: "shop_orders",
+            table_b: "shop_customers",
+          },
+        },
+      });
+
+      expect(response.result).toBeDefined();
+      expect(response.error).toBeUndefined();
+      const result = response.result as { content?: Array<{ text: string }>; isError?: boolean };
+      expect(result.isError).toBeFalsy();
+      const data = JSON.parse(result.content![0].text);
+
+      // Should find cross-source paths via customer_id
+      expect(data.direct_paths.length).toBeGreaterThanOrEqual(1);
+      const customerIdPath = data.direct_paths.find(
+        (p: { join_condition: string }) => p.join_condition.includes("customer_id"),
+      );
+      expect(customerIdPath).toBeDefined();
+      expect(customerIdPath.confidence).toBeGreaterThanOrEqual(0.65);
+      console.log("✅ Cross-source JOIN paths (shop_orders ↔ shop_customers):", data.direct_paths.length, "direct");
+      console.log("  Best path:", customerIdPath.join_condition, "confidence:", customerIdPath.confidence);
+    });
+  });
+
   describe("Scenario 3: SQL 安全检查", () => {
     it("3.1 禁止 INSERT", async () => {
       const response = await sendMessage({
