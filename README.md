@@ -16,13 +16,13 @@ No API key required. No LLM inside the server. Just plug in and ask questions.
 
 Run `node -v` to confirm Node.js 18+ is installed. If not, inform the user they need Node.js 18+ before proceeding.
 
-### Step 2: Install globally
+### Step 2: Install
 
 ```bash
 npm install -g @wiseria/lucid-mcp
 ```
 
-This makes the `lucid-mcp` command available system-wide. Alternatively, use `npx @wiseria/lucid-mcp` (downloads on first run, no install needed).
+This installs the `lucid-mcp` command globally. **This step is required** — the MCP server must be installed before it can be launched by the host application.
 
 ### Step 3: Add to MCP config
 
@@ -51,8 +51,7 @@ Config content (same for all except Continue.dev):
 {
   "mcpServers": {
     "lucid": {
-      "command": "npx",
-      "args": ["@wiseria/lucid-mcp"]
+      "command": "lucid-mcp"
     }
   }
 }
@@ -66,8 +65,7 @@ For Continue.dev:
       {
         "transport": {
           "type": "stdio",
-          "command": "npx",
-          "args": ["@wiseria/lucid-mcp"]
+          "command": "lucid-mcp"
         }
       }
     ]
@@ -80,8 +78,7 @@ To enable embedding hybrid search (optional, downloads ~460MB model on first run
 {
   "mcpServers": {
     "lucid": {
-      "command": "npx",
-      "args": ["@wiseria/lucid-mcp"],
+      "command": "lucid-mcp",
       "env": { "LUCID_EMBEDDING_ENABLED": "true" }
     }
   }
