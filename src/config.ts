@@ -6,13 +6,13 @@ import path from "node:path";
  * Resolve the data directory for lucid-skill.
  * Priority:
  * 1. LUCID_DATA_DIR env var (explicit override)
- * 2. ~/.lucid-mcp/ (user home, always writable, works regardless of cwd)
+ * 2. ~/.lucid-skill/ (user home, always writable, works regardless of cwd)
  */
 function resolveDataDir(): string {
   if (process.env.LUCID_DATA_DIR) {
     return process.env.LUCID_DATA_DIR;
   }
-  return path.join(os.homedir(), ".lucid-mcp");
+  return path.join(os.homedir(), ".lucid-skill");
 }
 
 const dataDir = resolveDataDir();
@@ -38,7 +38,7 @@ const DEFAULT_CONFIG: LucidConfig = {
   embedding: {
     enabled: process.env.LUCID_EMBEDDING_ENABLED === "true",
     model: "Xenova/paraphrase-multilingual-MiniLM-L12-v2",
-    cacheDir: path.join(os.homedir(), ".lucid-mcp", "models"),
+    cacheDir: path.join(os.homedir(), ".lucid-skill", "models"),
   },
   logging: {
     level: "info",

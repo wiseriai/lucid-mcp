@@ -54,18 +54,19 @@ lucid-skill connect excel <path> [--sheets Sheet1,Sheet2]
 ### MySQL
 
 ```bash
-lucid-skill connect mysql --host <host> --database <db> --username <user> --password <pass>
+lucid-skill connect mysql --host <host> --database <db> --username <user> --password <pass> [--port 3306]
 ```
 
 ### PostgreSQL
 
 ```bash
-lucid-skill connect postgres --host <host> --database <db> --username <user> --password <pass> [--schema <schema>]
+lucid-skill connect postgres --host <host> --database <db> --username <user> --password <pass> [--port 5432] [--schema <schema>]
 ```
 
 | Parameter | Description |
 |-----------|-------------|
 | `--host` | Database hostname |
+| `--port` | Database port (MySQL default: 3306, PostgreSQL default: 5432) |
 | `--database` | Database name |
 | `--username` | Database user |
 | `--password` | Database password (never persisted to disk) |
@@ -78,8 +79,12 @@ lucid-skill connect postgres --host <host> --database <db> --username <user> --p
 List all connected tables with row counts.
 
 ```bash
-lucid-skill tables
+lucid-skill tables [--source-id <id>]
 ```
+
+| Parameter | Description |
+|-----------|-------------|
+| `--source-id` | Filter tables by a specific source ID (optional) |
 
 ---
 
@@ -108,8 +113,12 @@ lucid-skill profile <table>
 Export current table schemas for semantic inference. Use this output to analyze columns and prepare semantic definitions.
 
 ```bash
-lucid-skill init-semantic
+lucid-skill init-semantic [--source-id <id>]
 ```
+
+| Parameter | Description |
+|-----------|-------------|
+| `--source-id` | Export schemas for a specific source only (optional) |
 
 Output: JSON with all table schemas. Feed into LLM analysis → `update-semantic`.
 
@@ -134,13 +143,18 @@ For full JSON format specification, see [json-schema.md](json-schema.md).
 Natural language search across all connected tables. Returns relevant tables, JOIN hints, and suggested metric SQL.
 
 ```bash
-lucid-skill search "<query>"
+lucid-skill search "<query>" [--top-k 5]
 ```
+
+| Parameter | Description |
+|-----------|-------------|
+| `--top-k` | Number of results to return (default: 5) |
 
 Example:
 
 ```bash
 lucid-skill search "月度销售额趋势"
+lucid-skill search "客户留存" --top-k 10
 ```
 
 Response includes: `relevantTables`, `suggestedJoins`, `suggestedMetricSqls`.
@@ -162,8 +176,12 @@ lucid-skill join-paths <table_a> <table_b>
 Show auto-discovered business domains based on semantic annotations.
 
 ```bash
-lucid-skill domains
+lucid-skill domains [--datasource <name>]
 ```
+
+| Parameter | Description |
+|-----------|-------------|
+| `--datasource` | Filter domains by datasource name (optional) |
 
 ---
 

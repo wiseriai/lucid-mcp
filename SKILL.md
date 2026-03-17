@@ -44,9 +44,14 @@ lucid-skill query "SELECT month, SUM(amount) FROM sales GROUP BY month"  # Execu
 | `connect csv/excel/mysql/postgres` | Connect a data source |
 | `tables` | List all tables with row counts |
 | `describe <table>` | Column details + sample data + semantics |
-| `search <query>` | Natural language → relevant tables + JOIN hints + metric SQL |
+| `profile <table>` | Deep stats: null rate, distinct, min/max, quartiles |
+| `init-semantic` | Export schemas for semantic inference |
+| `update-semantic <file\|->` | Save semantic definitions (JSON from file or stdin) |
+| `search <query> [--top-k N]` | Natural language → relevant tables + JOIN hints + metric SQL |
 | `join-paths <a> <b>` | Discover JOIN paths between two tables |
-| `query <sql>` | Execute read-only SQL (default: markdown, `--format json\|csv`) |
+| `domains` | Auto-discovered business domains |
+| `query <sql> [--format json\|md\|csv]` | Execute read-only SQL |
+| `serve` | Start MCP Server (stdio JSON-RPC) |
 
 For full command reference with all parameters: read [references/commands.md](references/commands.md)
 

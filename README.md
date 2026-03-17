@@ -73,7 +73,7 @@ Agent ──→ lucid-skill CLI ──→ Connectors (Excel/CSV/MySQL/PG)
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `LUCID_DATA_DIR` | `~/.lucid-mcp/` | Data directory (catalog, semantic store, models) |
+| `LUCID_DATA_DIR` | `~/.lucid-skill/` | Data directory (catalog, semantic store, models) |
 | `LUCID_EMBEDDING_ENABLED` | `false` | Enable vector search (~460 MB model download on first use) |
 
 ---

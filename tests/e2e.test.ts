@@ -62,7 +62,7 @@ async function sendMessage(request: JsonRpcRequest): Promise<JsonRpcResponse> {
 describe("Lucid MCP — Sprint 1 E2E Tests", () => {
   beforeAll(async () => {
     // Clean up old catalog DB and semantic store to avoid state pollution
-    const lucidDir = path.join(os.homedir(), ".lucid-mcp");
+    const lucidDir = path.join(os.homedir(), ".lucid-skill");
     const catalogPath = path.join(lucidDir, "lucid-catalog.db");
     const semanticStorePath = path.join(lucidDir, "semantic_store");
     if (fs.existsSync(catalogPath)) {
