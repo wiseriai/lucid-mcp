@@ -10,11 +10,11 @@ metadata:
         "install":
           [
             {
-              "id": "npm",
-              "kind": "npm",
-              "package": "@wiseria/lucid-skill",
+              "id": "uv",
+              "kind": "uv",
+              "package": "lucid-skill",
               "bins": ["lucid-skill"],
-              "label": "Install lucid-skill (npm)",
+              "label": "Install lucid-skill (uv)",
             },
           ],
       },

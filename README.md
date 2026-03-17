@@ -20,7 +20,16 @@ No API key required. No LLM inside — the AI agent is the brain; lucid-skill is
 ## Install
 
 ```bash
-npm install -g @wiseria/lucid-skill
+pip install lucid-skill
+
+# Or with uv (recommended for OpenClaw)
+uv tool install lucid-skill
+
+# Optional: database drivers
+pip install "lucid-skill[db]"       # MySQL + PostgreSQL
+
+# Optional: embedding search
+pip install "lucid-skill[embedding]" # sentence-transformers
 ```
 
 ---
@@ -48,12 +57,12 @@ lucid-skill query "SELECT product, SUM(amount) FROM sales GROUP BY product ORDER
 ```
 Agent ──→ lucid-skill CLI ──→ Connectors (Excel/CSV/MySQL/PG)
                 │                      │
-                ├── Catalog (SQLite)    └── DuckDB (in-memory query engine)
+                ├── Catalog (DuckDB)   └── DuckDB (in-memory query engine)
                 └── Semantic Store (YAML)
 ```
 
 - **No LLM inside** — lucid-skill provides data access; the AI agent handles reasoning
-- **Read-write separation** — file/DB sources are registered into DuckDB for read-only querying
+- **DuckDB unified** — catalog storage + query engine, single dependency, no compilation needed
 - **Semantic persistence** — YAML definitions survive restarts, shareable via Git
 
 ---
@@ -64,8 +73,8 @@ Agent ──→ lucid-skill CLI ──→ Connectors (Excel/CSV/MySQL/PG)
 |------|--------|-------|
 | Excel | `.xlsx`, `.xls` | Multiple sheets supported |
 | CSV | `.csv` | Auto-detects encoding and delimiter |
-| MySQL | 5.7+ / 8.0+ | Reads foreign keys and column comments |
-| PostgreSQL | 12+ | Reads foreign keys and column comments |
+| MySQL | 5.7+ / 8.0+ | Reads foreign keys and column comments (`pip install lucid-skill[db]`) |
+| PostgreSQL | 12+ | Reads foreign keys and column comments (`pip install lucid-skill[db]`) |
 
 ---
 
@@ -101,9 +110,8 @@ lucid-skill serve
 ```bash
 git clone https://github.com/WiseriaAI/lucid-skill
 cd lucid-skill
-npm install
-npm run build
-npm test
+pip install -e ".[dev]"
+pytest
 ```
 
 ## License
